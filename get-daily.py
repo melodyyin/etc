@@ -1,4 +1,4 @@
-### the following reads in a large (>200MB) json file and performs some analysis on the extracted data
+### the following reads in a large (>2GB) json file and performs some analysis on the extracted data
 ### due to memory constraints, json file was divided into fifths, and only the relevant variables were stored
 ### assignment completed for COMPANY X in mid-june 
 ### part 1 of 4 
