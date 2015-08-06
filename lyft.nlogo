@@ -12,7 +12,7 @@ to enable-grid
   ask (patch-set patches with [ pxcor mod 4 = 0 ] patches with [ pycor mod 4 = 0 ])
   [
     if pcolor != grey and pcolor != orange [ set pcolor yellow - 2 ]
-  ]
+  ] 
 end
 
 to-report adjust [ pt ] 
@@ -155,7 +155,6 @@ end
 
 ;; detour with roads laid out in grid system
 ;; again assuming only one car moves 
-;; car with lower manhattan distance to destination picks up the other 
 to detour2 
   let ab-manh-dist 0
   let cd-manh-dist 0
@@ -285,7 +284,7 @@ pointA-x
 pointA-x
 min-pxcor
 max-pxcor
-0
+-12
 0.001
 1
 NIL
@@ -300,7 +299,7 @@ pointA-y
 pointA-y
 min-pycor
 max-pycor
--4
+-12
 0.001
 1
 NIL
@@ -330,7 +329,7 @@ pointB-y
 pointB-y
 min-pycor
 max-pycor
-8
+12
 0.001
 1
 NIL
@@ -345,7 +344,7 @@ pointC-x
 pointC-x
 min-pxcor
 max-pxcor
--16
+12
 0.1
 1
 NIL
@@ -360,7 +359,7 @@ pointC-y
 pointC-y
 min-pycor
 max-pycor
-8
+-12
 0.1
 1
 NIL
@@ -390,7 +389,7 @@ pointD-y
 pointD-y
 min-pycor
 max-pycor
-16
+-8
 0.1
 1
 NIL
