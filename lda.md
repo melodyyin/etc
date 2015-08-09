@@ -7,7 +7,7 @@ output: html_document
 
 A few weeks ago, I scraped some comments from [MakeupAlley](www.makeupalley.com) (MUA), which is not only the largest but also the most trusted beauty reviews database. For most beauty-related products, "*item name* makeupalley" is one of the top suggested queries on Google. 
 
-I used Python and **BeautifulSoup** to scrape the reviews of 10 random items, each with around 100 reviews each and I loaded them in a txt file. The resulting dataset is quite small (~1MB), but I thought it was a good size for playing around with a text analysis model I had heard about on one of my favorite podcasts (shoutout to [Talking Machines](http://www.thetalkingmachines.com/) - Latent Dirichlet allocation (LDA). The R packages I am using are **tm**, **slam** and **topicmodels**. I found the [topicmodels vignette](https://cran.r-project.org/web/packages/topicmodels/vignettes/topicmodels.pdf) to be especially helpful. 
+I used Python and **BeautifulSoup** to scrape the reviews of 10 random items, each with around 100 reviews each and I loaded them in a txt file. The resulting dataset is quite small (~1MB), but I thought it was a good size for playing around with a text analysis model I had heard about on one of my favorite podcasts (shoutout to [Talking Machines](http://www.thetalkingmachines.com/)) - Latent Dirichlet allocation (LDA). The R packages I am using are **tm**, **slam** and **topicmodels**. I found the [topicmodels vignette](https://cran.r-project.org/web/packages/topicmodels/vignettes/topicmodels.pdf) to be especially helpful. 
 
 In a nutshell, given a set of documents, LDA can give you the categories of words (i.e., topics) that each document is composed of. For example, a news article could be 80% politics and 20% health. This is useful because if you have a massive amount of unlabeled documents, you can use LDA to help get clues of what each document is about. 
 
@@ -18,6 +18,7 @@ Let's take a look at the 10 selected items and read in the comments:
 
 ```r
 names = readLines("names.txt")
+comments = readLines("comments.txt")
 unique(names)
 ```
 
@@ -32,15 +33,6 @@ unique(names)
 ##  [8] "Wet 'n' Wild Silk Finish Blush - Mellow Wine 833D"            
 ##  [9] "Smashbox Camera Ready Full Coverage Concealer"                
 ## [10] "Tom Ford Black Orchid EDP"
-```
-
-```r
-comments = readLines("comments.txt")
-length(comments) 
-```
-
-```
-## [1] 1042
 ```
 
 Then, load **tm** and do some basic processing: 
@@ -63,7 +55,7 @@ Find the total frequency-inverse document frequency (tfidf), which is the term f
 ```r
 library(slam)
 c.tfidf = tapply(c.dtm$v/row_sums(c.dtm)[c.dtm$i], c.dtm$j, mean) * log2(nDocs(c.dtm)/col_sums(c.dtm>0))
-c.dtm = c.dtm[,c.tfidf >= quantile(c.tfidf, 0.25)] # get rid of frequent terms 
+c.dtm = c.dtm[,c.tfidf >= quantile(c.tfidf, 0.25)] # get rid of irrelevant terms 
 dim(c.dtm) 
 ```
 
@@ -97,7 +89,7 @@ terms(c.tm, 5)
 ## [5,] "smooth"     "gel"          "nothing"  "stuff"       "balm"
 ```
 
-How cool! The algorithm was able to discern the various product types that the 10 items belong to. Topic 1 is about toner (item 1), topic 2 is about face makeup (items 5 and 9), topic 4 is about blush (items 2 and 8), topic 5 is about fragrance (item 10), topic 7 is about body wash (items 4 and 7), topic 9 is about hair conditioner (item 6), and topic 10 is about lip product (item 3). Topics 3, 6 and 8 are a little vague and don't seem to lean towards any product category, although this is expected since some items belong in the same category. They could be reactions to these items, however; 3 and 6 sound positive, while 8 is more neutral. 
+How cool! The algorithm was able to discern the various product types that the 10 items belong to. Topic 1 is about toner (item 1), topic 2 is about face makeup (items 5 and 9), topic 4 is about blush (items 2 and 8), topic 5 is about fragrance (item 10), topic 7 is about body wash (items 4 and 7), topic 9 is about hair conditioner (item 6), and topic 10 is about lip product (item 3). All items are accounted for. Topics 3, 6 and 8 are a little vague and don't seem to lean towards any product category, although this is expected since some items belong in the same category. They could be reactions to these items, however; 3 and 6 sound positive, while 8 is more neutral. 
 
 Here are the results for slightly fewer topics (k=7): 
 
@@ -129,9 +121,9 @@ It appears that those reaction categories have been removed. Finally, we try usi
 ## [5,] "shade"      "fragrance" "acne"
 ```
 
-It's reasonable to name the first topic as makeup and the third as skincare. The third is a little difficult.. perhaps personal hygiene?
+It's reasonable to name the first topic as makeup and the third as skincare. The second is a little difficult.. perhaps personal hygiene?
 
-Even though I know LDA is used more for determining the topic distribution of a document rather than topic discovery (i.e., we care about the distribution of the top categories per document rather than the single most prevalent topic), but it's awesome that the algorithm was able to discern the different product types given very limited set of documents and only the number of categories to look for. 
+Even though I know LDA is used more for determining the topic distribution of a document rather than topic discovery (i.e., we care about the distribution of the top categories per document rather than the single most prevalent topic), it's awesome that the algorithm was able to discern the different product types given very limited set of documents and only the number of categories to look for. 
 
 Let's show an example of the topic distributions (using k=3) of a random comment:
 
@@ -155,6 +147,6 @@ posterior(c.tm)$topics[choice,]
 ## 0.2271062 0.2161172 0.5567766
 ```
 
-55% skincare, 23% makeup, 22% personal hygiene
+56% skincare, 23% makeup, 22% personal hygiene; this was a review for a toner. 
 
 There were similar results with higher k-value; although the correct category would have the highest value, the rest tended to be all similar. This suggests that perhaps LDA works better on longer documents with a greater set of vocabulary or with a larger set of documents. Or, alternatively, my dataset is not appropriate for LDA analysis since the majority of comments will hover around one or two topics. Nevertheless, LDA is a great algorithm to have in my toolkit and I will certainly come back to this algorithm if I encounter any data that would be suited for its usage! 
